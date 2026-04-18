@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>AI JavaScript Code Reviewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 220px;
+            font-family: Consolas, monospace;
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            resize: vertical;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 16px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: #999;
+        }
+
+        .status {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .output {
+            margin-top: 15px;
+            background: #0f172a;
+            color: #e5e7eb;
+            padding: 15px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>AI JavaScript Code Reviewer</h2>
+
+        <label>Paste your JavaScript code</label>
+        <textarea id="codeInput" placeholder="Paste your JS code here..."></textarea>
+
+        <br>
+        <button id="reviewBtn">Review Code</button>
+
+        <div class="status" id="status"></div>
+        <div class="output" id="output"></div>
+    </div>
+
+    <script>
+        const reviewBtn = document.getElementById("reviewBtn");
+        const codeInput = document.getElementById("codeInput");
+        const output = document.getElementById("output");
+        const status = document.getElementById("status");
+
+        reviewBtn.addEventListener("click", async () => {
+            const code = codeInput.value.trim();
+
+            if (!code) {
+                alert("Please enter some code");
+                return;
+            }
+
+            reviewBtn.disabled = true;
+            status.textContent = "Reviewing...";
+            output.textContent = "";
+
+            try {
+                const res = await fetch("http://localhost:3002/ai", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ code })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || "Request failed");
+                }
+
+                output.textContent = data.response;
+                status.textContent = "Done";
+            } catch (err) {
+                status.textContent = "Error";
+                output.textContent = err.message;
+            } finally {
+                reviewBtn.disabled = false;
+            }
+        });
+        function add(a, b) {
+            return a + b
+        }
+
+    </script>
+
+</body>
+
+</html>
